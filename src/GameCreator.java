@@ -21,6 +21,7 @@ public class GameCreator extends JPanel implements ActionListener {
     static JButton ImageButton, createButton;
     JFileChooser chooser;
     static ImageIcon imageIcon;
+    static JLabel levelLabel = new JLabel("2 of 2");
     static JTextField solutionText = new JTextField(16);
     static JTextField alphabetText = new JTextField(8);
 
@@ -108,8 +109,24 @@ public class GameCreator extends JPanel implements ActionListener {
         //////////////
         c.gridx = 0;
         c.gridy = 0;
-        c.anchor = GridBagConstraints.LINE_START;
+        c.gridwidth = 2; //it means fill whole row. Do not divide row to 2 columns.
+        c.anchor = GridBagConstraints.CENTER;
+        panel.add(levelLabel,c);  //TODO , number of levels has to be determined.
 
+
+        //separator, draws a horizontal line between level number & other elements.
+        //GridBagConstraints separatorConstraint = new GridBagConstraints();
+        c.gridy++;
+        c.weightx = 1.0;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridwidth = GridBagConstraints.BELOW_BASELINE_LEADING;
+        panel.add(new JSeparator(JSeparator.HORIZONTAL), c);
+        ///////////////////////////////////////////////////////////////////////////
+
+        c.fill = GridBagConstraints.NONE;// No need that the elements fill their spaces.
+        c.gridwidth = 1;
+        c.gridy++;
+        c.anchor = GridBagConstraints.LINE_START;
         panel.add(new JLabel("Enter Puzzle solution text here: "), c);
         c.gridy++;
         panel.add(new JLabel("Enter alphabets for puzzle here: "), c);
@@ -118,15 +135,14 @@ public class GameCreator extends JPanel implements ActionListener {
         c.gridy++;
         panel.add(createButton, c);
 
-        ///////////////
-        c.gridx = 1;
-        c.gridy = 0;
+        //////////////////////////////////////////
         c.anchor = GridBagConstraints.LINE_START;
-
-        panel.add(solutionText);
+        c.gridx = 1;
+        c.gridy = 2;
+        panel.add(solutionText,c);
         c.gridy++;
         panel.add(alphabetText, c);
-        //////////////////////////
+        /////////////////////////////////////////
 
         frame.add(panel);
         frame.pack();
@@ -137,7 +153,7 @@ public class GameCreator extends JPanel implements ActionListener {
     }
 
     private static void saveCell(int level){
-        int index = level -1;
+        int index = level - 1;
         GameCell_info gameCellInfo = gameCellArray.get(index);
 
         String solution = solutionText.getText();
@@ -145,7 +161,6 @@ public class GameCreator extends JPanel implements ActionListener {
         char[] alphabetsChar = new char[alphabets.length()];
         alphabets.getChars(0, alphabets.length(), alphabetsChar, 0);
         Image image = imageIcon.getImage();
-
 
         gameCellInfo.setSolution(solution);
         gameCellInfo.setAlphabets(alphabetsChar);
@@ -160,7 +175,7 @@ public class GameCreator extends JPanel implements ActionListener {
     }
 
     private static void loadCell(int level){
-        int index = level -1;
+        int index = level - 1;
         GameCell_info gameCellInfo = gameCellArray.get(index);
 
         solutionText.setText(gameCellInfo.getSolution());
