@@ -2,16 +2,11 @@
  * Created by Maedeh on 2/10/2017.
  */
 
-import com.sun.deploy.util.StringUtils;
-
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.event.*;
 import java.awt.*;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -21,8 +16,8 @@ import java.util.ArrayList;
 public class GameCreator extends JPanel implements ActionListener {
 
     static ArrayList<GameCell_info> gameCellArray = new ArrayList<>();
-    static ArrayList<String> imagesPath = new ArrayList<>();
-    static JButton ImageButton, createButton, saveButton, nextButton, previousButton, saveFileButton;
+    static ArrayList<String> imagesPathArray = new ArrayList<>();
+    static JButton ImageButton, createButton, saveButton, nextButton, previousButton, saveFileButton, loadFileButton;
     JFileChooser chooser;
     static ImageIcon imageIcon;
     static JTextArea levelLabel = new JTextArea();
@@ -56,6 +51,11 @@ public class GameCreator extends JPanel implements ActionListener {
         saveFileButton = new JButton("Save File");
         saveFileButton.addActionListener(this);
         saveFileButton.setActionCommand("saveFileButton");
+
+
+        loadFileButton = new JButton("Load File");
+        loadFileButton.addActionListener(this);
+        loadFileButton.setActionCommand("loadFileButton");
     }
 
     @Override
@@ -102,27 +102,11 @@ public class GameCreator extends JPanel implements ActionListener {
             }
         } else if (action.equals("saveFileButton")) {
             saveFile();
+
+        } else if (action.equals("loadFileButton")) {
+            loadFile();
         }
     }
-
-
-//    public void saveImage(Image image) {
-//        RenderedImage rendered = null;
-//        if (image instanceof RenderedImage) {
-//            rendered = (RenderedImage) image;
-//        } else {
-//            BufferedImage buffered = new BufferedImage(imageIcon.getIconWidth(), imageIcon.getIconHeight(), BufferedImage.TYPE_INT_RGB);
-//            Graphics2D g = buffered.createGraphics();
-//            g.drawImage(image, 0, 0, null);
-//            g.dispose();
-//            rendered = buffered;
-//        }
-//        try {
-//            ImageIO.write(rendered, "JPEG", new File("image.png"));
-//        } catch (IOException e1) {
-//            e1.printStackTrace();
-//        }
-//    }
 
 
     public static void main(String s[]) {
@@ -187,6 +171,8 @@ public class GameCreator extends JPanel implements ActionListener {
         panel.add(saveButton, c);
         c.gridy++;
         panel.add(nextButton, c);
+        c.gridy++;
+        panel.add(loadFileButton, c);
         /////////////////////////////////////////
 
         frame.add(panel);
@@ -195,13 +181,13 @@ public class GameCreator extends JPanel implements ActionListener {
 
         // game handling logic
         gameCellArray.add(new GameCell_info());
-        imagesPath.add("");
+        imagesPathArray.add("");
         loadCell(1);
     }
 
     private static void createCell() {
         gameCellArray.add(new GameCell_info());
-        imagesPath.add("");
+        imagesPathArray.add("");
         totalLevelNumber++;
         levelNumber = totalLevelNumber;
         loadCell(levelNumber);
@@ -217,7 +203,7 @@ public class GameCreator extends JPanel implements ActionListener {
         alphabets.getChars(0, alphabets.length(), alphabetsChar, 0);
 
         String imagePathString = imagePathName.getText();
-        imagesPath.set(index, imagePathString);
+        imagesPathArray.set(index, imagePathString);
 
         if (imagePathString != null && !imagePathString.isEmpty()) {
             try {
@@ -246,7 +232,7 @@ public class GameCreator extends JPanel implements ActionListener {
 
         solutionText.setText(gameCellInfo.getSolution());
         alphabetText.setText(String.valueOf(gameCellInfo.getAlphabets()));
-        imagePathName.setText(imagesPath.get(index));
+        imagePathName.setText(imagesPathArray.get(index));
 
         // update top text
         levelLabel.setText(" Level " + levelNumber + " of " + totalLevelNumber + " ");
@@ -265,15 +251,41 @@ public class GameCreator extends JPanel implements ActionListener {
     }
 
     private static void saveFile() {
-        FileOutputStream fout;
-        ObjectOutputStream oos;
         try {
-            fout = new FileOutputStream("rebussPuzzle.marash");
-            oos = new ObjectOutputStream(fout);
+            FileOutputStream fout = new FileOutputStream("rebussPuzzle.marash");
+            ObjectOutputStream oos = new ObjectOutputStream(fout);
             oos.writeObject(gameCellArray);
             oos.close();
             fout.close();
+            // save imagePathArray
+            fout = new FileOutputStream("imagesPath.marash");
+            oos = new ObjectOutputStream(fout);
+            oos.writeObject(imagesPathArray);
+            oos.close();
+            fout.close();
         } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void loadFile() {
+        try {
+            FileInputStream streamIn = new FileInputStream("rebussPuzzle.marash");
+            ObjectInputStream objectinputstream = new ObjectInputStream(streamIn);
+            gameCellArray = (ArrayList<GameCell_info>) objectinputstream.readObject();
+            objectinputstream.close();
+            streamIn.close();
+            // load imagePaths
+            streamIn = new FileInputStream("imagesPath.marash");
+            objectinputstream = new ObjectInputStream(streamIn);
+            imagesPathArray = (ArrayList<String>) objectinputstream.readObject();
+            objectinputstream.close();
+            streamIn.close();
+
+            totalLevelNumber = gameCellArray.size();
+            levelNumber = 1;
+            loadCell(levelNumber);
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
