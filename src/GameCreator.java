@@ -6,13 +6,17 @@ import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.event.*;
 import java.awt.*;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 
 public class GameCreator extends JPanel implements ActionListener {
 
-    public static ArrayList<GameCell_info> gameCellArray = new ArrayList<GameCell_info>();
-
+    static ArrayList<GameCell_info> gameCellArray = new ArrayList<>();
+    static ArrayList<String> imagesPath = new ArrayList<>();
     static JButton ImageButton, createButton, saveButton, nextButton, previousButton;
     JFileChooser chooser;
     static ImageIcon imageIcon;
@@ -57,8 +61,6 @@ public class GameCreator extends JPanel implements ActionListener {
             chooser.setFileFilter(filter);
             if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
 
-//                System.out.println("getSelectedFile() : "
-//                        + chooser.getSelectedFile());
 
                 imagePathName.setText(String.valueOf(chooser.getSelectedFile()));
 
@@ -135,7 +137,7 @@ public class GameCreator extends JPanel implements ActionListener {
         c.gridy = 0;
         c.gridwidth = 2; //it means fill whole row. Do not divide row to 2 columns.
         c.anchor = GridBagConstraints.CENTER;
-        panel.add(levelLabel,c);  //TODO , number of levels has to be determined.
+        panel.add(levelLabel,c);
 
 
         //separator, draws a horizontal line between level number & other elements.
@@ -186,6 +188,7 @@ public class GameCreator extends JPanel implements ActionListener {
 
     private static void createCell(){
         gameCellArray.add(new GameCell_info());
+        imagesPath.add("");
         totalLevelNumber++;
         levelNumber = totalLevelNumber;
         loadCell(levelNumber);
@@ -200,8 +203,13 @@ public class GameCreator extends JPanel implements ActionListener {
         char[] alphabetsChar = new char[alphabets.length()];
         alphabets.getChars(0, alphabets.length(), alphabetsChar, 0);
 
-        //TODO imageIcon
-        //Image image = imageIcon.getImage();
+        imagesPath.set(index, imagePathName.getText());
+        Path path = Paths.get(imagePathName.getText());
+        try {
+           gameCellInfo.setImage(Files.readAllBytes(path));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         gameCellInfo.setSolution(solution);
         gameCellInfo.setAlphabets(alphabetsChar);
@@ -221,8 +229,7 @@ public class GameCreator extends JPanel implements ActionListener {
 
         solutionText.setText(gameCellInfo.getSolution());
         alphabetText.setText(String.valueOf(gameCellInfo.getAlphabets()));
-        // TODO: show picture, Image image = imageIcon.getImage();
-        //imagePathName.setText(gameCellInfo.g);
+        imagePathName.setText(imagesPath.get(index));
 
         // update top text
         levelLabel.setText(" Level " + levelNumber + " of " + totalLevelNumber + " ");

@@ -16,14 +16,14 @@ public class GameCell_info implements Serializable {
     private boolean isLocked, isSolved;
     private char[] alphabets = {};
     private int levelNumber;
-    private Image image;
+    private byte[] image;
 
 
-    public Image getImage() {
+    public byte[] getImage() {
         return image;
     }
 
-    public void setImage(Image image) {
+    public void setImage(byte[] image) {
         this.image = image;
     }
 
