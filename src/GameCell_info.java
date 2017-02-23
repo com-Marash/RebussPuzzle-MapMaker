@@ -12,9 +12,9 @@ import java.io.Serializable;
 
 public class GameCell_info implements Serializable {
 
-    private String solution;
+    private String solution = "";
     private boolean isLocked, isSolved;
-    private char[] alphabets;
+    private char[] alphabets = {};
     private int levelNumber;
     private Image image;
 

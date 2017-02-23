@@ -2,15 +2,10 @@
  * Created by Maedeh on 2/10/2017.
  */
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.event.*;
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 
 
@@ -18,10 +13,13 @@ public class GameCreator extends JPanel implements ActionListener {
 
     public static ArrayList<GameCell_info> gameCellArray = new ArrayList<GameCell_info>();
 
-    static JButton ImageButton, createButton;
+    static JButton ImageButton, createButton, saveButton, nextButton, previousButton;
     JFileChooser chooser;
     static ImageIcon imageIcon;
-    static JLabel levelLabel = new JLabel("2 of 2");
+    static JTextArea levelLabel = new JTextArea();
+    static int totalLevelNumber = 1;
+    static int levelNumber = 1;
+    static JTextArea imagePathName = new JTextArea("");
     static JTextField solutionText = new JTextField(16);
     static JTextField alphabetText = new JTextField(8);
 
@@ -34,6 +32,17 @@ public class GameCreator extends JPanel implements ActionListener {
         createButton.addActionListener(this);
         createButton.setActionCommand("create");
 
+        saveButton = new JButton("Save");
+        saveButton.addActionListener(this);
+        saveButton.setActionCommand("SaveGameCell");
+
+        nextButton = new JButton("Next");
+        nextButton.addActionListener(this);
+        nextButton.setActionCommand("NextGameCell");
+
+        previousButton = new JButton("Previous");
+        previousButton.addActionListener(this);
+        previousButton.setActionCommand("PreviousGameCell");
     }
 
     @Override
@@ -48,27 +57,42 @@ public class GameCreator extends JPanel implements ActionListener {
             chooser.setFileFilter(filter);
             if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
 
-                System.out.println("getSelectedFile() : "
-                        + chooser.getSelectedFile());
+//                System.out.println("getSelectedFile() : "
+//                        + chooser.getSelectedFile());
 
+                imagePathName.setText(String.valueOf(chooser.getSelectedFile()));
 
-                JFrame frame = new JFrame();
-                frame.getContentPane();
-                frame.setSize(getPreferredSize());
-
-                imageIcon = new ImageIcon(String.valueOf(chooser.getSelectedFile()));
-                JLabel label = new JLabel(imageIcon);
-                frame.add(label);
-                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                frame.setVisible(true);
+//                JFrame frame = new JFrame();
+//                frame.getContentPane();
+//                frame.setSize(getPreferredSize());
+//
+//                imageIcon = new ImageIcon(String.valueOf(chooser.getSelectedFile()));
+//                JLabel label = new JLabel(imageIcon);
+//                frame.add(label);
+//                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//                frame.setVisible(true);
             } else {
                 System.out.println("No Selection ");
             }
         } else if (action.equals("create")) {
-            //TODO create a new object
+            createCell();
 
+        } else if (action.equals("SaveGameCell")){
+            saveCell(levelNumber);
+
+        }else if (action.equals("NextGameCell")){
+            if(levelNumber < totalLevelNumber){
+                nextGameCell();
+            }
+
+        }else if (action.equals("PreviousGameCell")) {
+            if (levelNumber > 1) {
+                previousGameCell();
+            }
         }
     }
+
+
 
 //    public void saveImage(Image image) {
 //        RenderedImage rendered = null;
@@ -134,7 +158,8 @@ public class GameCreator extends JPanel implements ActionListener {
         panel.add(ImageButton, c);
         c.gridy++;
         panel.add(createButton, c);
-
+        c.gridy++;
+        panel.add(previousButton,c);
         //////////////////////////////////////////
         c.anchor = GridBagConstraints.LINE_START;
         c.gridx = 1;
@@ -142,6 +167,12 @@ public class GameCreator extends JPanel implements ActionListener {
         panel.add(solutionText,c);
         c.gridy++;
         panel.add(alphabetText, c);
+        c.gridy++;
+        panel.add(imagePathName, c);
+        c.gridy++;
+        panel.add(saveButton,c);
+        c.gridy++;
+        panel.add(nextButton,c);
         /////////////////////////////////////////
 
         frame.add(panel);
@@ -150,6 +181,14 @@ public class GameCreator extends JPanel implements ActionListener {
 
         // game handling logic
         gameCellArray.add(new GameCell_info());
+        loadCell(1);
+    }
+
+    private static void createCell(){
+        gameCellArray.add(new GameCell_info());
+        totalLevelNumber++;
+        levelNumber = totalLevelNumber;
+        loadCell(levelNumber);
     }
 
     private static void saveCell(int level){
@@ -160,11 +199,13 @@ public class GameCreator extends JPanel implements ActionListener {
         String alphabets = alphabetText.getText();
         char[] alphabetsChar = new char[alphabets.length()];
         alphabets.getChars(0, alphabets.length(), alphabetsChar, 0);
-        Image image = imageIcon.getImage();
+
+        //TODO imageIcon
+        //Image image = imageIcon.getImage();
 
         gameCellInfo.setSolution(solution);
         gameCellInfo.setAlphabets(alphabetsChar);
-        gameCellInfo.setImage(image);
+        //gameCellInfo.setImage(image);
         gameCellInfo.setLevelNumber(level);
         if (level ==1){
             gameCellInfo.setLocked(false);
@@ -179,9 +220,24 @@ public class GameCreator extends JPanel implements ActionListener {
         GameCell_info gameCellInfo = gameCellArray.get(index);
 
         solutionText.setText(gameCellInfo.getSolution());
-        alphabetText.setText(gameCellInfo.getAlphabets().toString());
+        alphabetText.setText(String.valueOf(gameCellInfo.getAlphabets()));
         // TODO: show picture, Image image = imageIcon.getImage();
+        //imagePathName.setText(gameCellInfo.g);
 
+        // update top text
+        levelLabel.setText(" Level " + levelNumber + " of " + totalLevelNumber + " ");
+    }
+
+    private static void nextGameCell(){
+        levelNumber++;
+        loadCell(levelNumber);
+        levelLabel.setText(" Level " + levelNumber + " of " + totalLevelNumber + " ");
+    }
+
+    private static void previousGameCell(){
+        levelNumber--;
+        loadCell(levelNumber);
+        levelLabel.setText(" Level " + levelNumber + " of " + totalLevelNumber + " ");
     }
 
 }
