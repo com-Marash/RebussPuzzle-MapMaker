@@ -2,11 +2,16 @@
  * Created by Maedeh on 2/10/2017.
  */
 
+import com.sun.deploy.util.StringUtils;
+
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.event.*;
 import java.awt.*;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -17,7 +22,7 @@ public class GameCreator extends JPanel implements ActionListener {
 
     static ArrayList<GameCell_info> gameCellArray = new ArrayList<>();
     static ArrayList<String> imagesPath = new ArrayList<>();
-    static JButton ImageButton, createButton, saveButton, nextButton, previousButton;
+    static JButton ImageButton, createButton, saveButton, nextButton, previousButton, saveFileButton;
     JFileChooser chooser;
     static ImageIcon imageIcon;
     static JTextArea levelLabel = new JTextArea();
@@ -47,6 +52,10 @@ public class GameCreator extends JPanel implements ActionListener {
         previousButton = new JButton("Previous");
         previousButton.addActionListener(this);
         previousButton.setActionCommand("PreviousGameCell");
+
+        saveFileButton = new JButton("Save File");
+        saveFileButton.addActionListener(this);
+        saveFileButton.setActionCommand("saveFileButton");
     }
 
     @Override
@@ -79,21 +88,22 @@ public class GameCreator extends JPanel implements ActionListener {
         } else if (action.equals("create")) {
             createCell();
 
-        } else if (action.equals("SaveGameCell")){
+        } else if (action.equals("SaveGameCell")) {
             saveCell(levelNumber);
 
-        }else if (action.equals("NextGameCell")){
-            if(levelNumber < totalLevelNumber){
+        } else if (action.equals("NextGameCell")) {
+            if (levelNumber < totalLevelNumber) {
                 nextGameCell();
             }
 
-        }else if (action.equals("PreviousGameCell")) {
+        } else if (action.equals("PreviousGameCell")) {
             if (levelNumber > 1) {
                 previousGameCell();
             }
+        } else if (action.equals("saveFileButton")) {
+            saveFile();
         }
     }
-
 
 
 //    public void saveImage(Image image) {
@@ -137,7 +147,7 @@ public class GameCreator extends JPanel implements ActionListener {
         c.gridy = 0;
         c.gridwidth = 2; //it means fill whole row. Do not divide row to 2 columns.
         c.anchor = GridBagConstraints.CENTER;
-        panel.add(levelLabel,c);
+        panel.add(levelLabel, c);
 
 
         //separator, draws a horizontal line between level number & other elements.
@@ -161,20 +171,22 @@ public class GameCreator extends JPanel implements ActionListener {
         c.gridy++;
         panel.add(createButton, c);
         c.gridy++;
-        panel.add(previousButton,c);
+        panel.add(previousButton, c);
+        c.gridy++;
+        panel.add(saveFileButton, c);
         //////////////////////////////////////////
         c.anchor = GridBagConstraints.LINE_START;
         c.gridx = 1;
         c.gridy = 2;
-        panel.add(solutionText,c);
+        panel.add(solutionText, c);
         c.gridy++;
         panel.add(alphabetText, c);
         c.gridy++;
         panel.add(imagePathName, c);
         c.gridy++;
-        panel.add(saveButton,c);
+        panel.add(saveButton, c);
         c.gridy++;
-        panel.add(nextButton,c);
+        panel.add(nextButton, c);
         /////////////////////////////////////////
 
         frame.add(panel);
@@ -183,10 +195,11 @@ public class GameCreator extends JPanel implements ActionListener {
 
         // game handling logic
         gameCellArray.add(new GameCell_info());
+        imagesPath.add("");
         loadCell(1);
     }
 
-    private static void createCell(){
+    private static void createCell() {
         gameCellArray.add(new GameCell_info());
         imagesPath.add("");
         totalLevelNumber++;
@@ -194,7 +207,7 @@ public class GameCreator extends JPanel implements ActionListener {
         loadCell(levelNumber);
     }
 
-    private static void saveCell(int level){
+    private static void saveCell(int level) {
         int index = level - 1;
         GameCell_info gameCellInfo = gameCellArray.get(index);
 
@@ -203,27 +216,31 @@ public class GameCreator extends JPanel implements ActionListener {
         char[] alphabetsChar = new char[alphabets.length()];
         alphabets.getChars(0, alphabets.length(), alphabetsChar, 0);
 
-        imagesPath.set(index, imagePathName.getText());
-        Path path = Paths.get(imagePathName.getText());
-        try {
-           gameCellInfo.setImage(Files.readAllBytes(path));
-        } catch (IOException e) {
-            e.printStackTrace();
+        String imagePathString = imagePathName.getText();
+        imagesPath.set(index, imagePathString);
+
+        if (imagePathString != null && !imagePathString.isEmpty()) {
+            try {
+                Path path = Paths.get(imagePathString);
+                gameCellInfo.setImage(Files.readAllBytes(path));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         gameCellInfo.setSolution(solution);
         gameCellInfo.setAlphabets(alphabetsChar);
         //gameCellInfo.setImage(image);
         gameCellInfo.setLevelNumber(level);
-        if (level ==1){
+        if (level == 1) {
             gameCellInfo.setLocked(false);
-        }else{
+        } else {
             gameCellInfo.setLocked(true);
         }
         gameCellInfo.setSolved(false);
     }
 
-    private static void loadCell(int level){
+    private static void loadCell(int level) {
         int index = level - 1;
         GameCell_info gameCellInfo = gameCellArray.get(index);
 
@@ -235,16 +252,30 @@ public class GameCreator extends JPanel implements ActionListener {
         levelLabel.setText(" Level " + levelNumber + " of " + totalLevelNumber + " ");
     }
 
-    private static void nextGameCell(){
+    private static void nextGameCell() {
         levelNumber++;
         loadCell(levelNumber);
         levelLabel.setText(" Level " + levelNumber + " of " + totalLevelNumber + " ");
     }
 
-    private static void previousGameCell(){
+    private static void previousGameCell() {
         levelNumber--;
         loadCell(levelNumber);
         levelLabel.setText(" Level " + levelNumber + " of " + totalLevelNumber + " ");
+    }
+
+    private static void saveFile() {
+        FileOutputStream fout;
+        ObjectOutputStream oos;
+        try {
+            fout = new FileOutputStream("rebussPuzzle.marash");
+            oos = new ObjectOutputStream(fout);
+            oos.writeObject(gameCellArray);
+            oos.close();
+            fout.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }
