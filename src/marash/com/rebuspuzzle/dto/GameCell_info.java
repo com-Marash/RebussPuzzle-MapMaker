@@ -1,8 +1,5 @@
-/**
- * Created by Maedeh on 2/16/2017.
- */
+package marash.com.rebuspuzzle.dto;
 
-import java.awt.*;
 import java.io.Serializable;
 
 

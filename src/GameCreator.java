@@ -2,6 +2,8 @@
  * Created by Maedeh on 2/10/2017.
  */
 
+import marash.com.rebuspuzzle.dto.GameCell_info;
+
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.event.*;
