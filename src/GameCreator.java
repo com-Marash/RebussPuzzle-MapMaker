@@ -21,7 +21,6 @@ public class GameCreator extends JPanel implements ActionListener {
     static ArrayList<String> imagesPathArray = new ArrayList<>();
     static JButton ImageButton, createButton, saveButton, nextButton, previousButton, saveFileButton, loadFileButton;
     JFileChooser chooser;
-    static ImageIcon imageIcon;
     static JTextArea levelLabel = new JTextArea();
     static int totalLevelNumber = 1;
     static int levelNumber = 1;
@@ -75,15 +74,6 @@ public class GameCreator extends JPanel implements ActionListener {
 
                 imagePathName.setText(String.valueOf(chooser.getSelectedFile()));
 
-//                JFrame frame = new JFrame();
-//                frame.getContentPane();
-//                frame.setSize(getPreferredSize());
-//
-//                imageIcon = new ImageIcon(String.valueOf(chooser.getSelectedFile()));
-//                JLabel label = new JLabel(imageIcon);
-//                frame.add(label);
-//                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//                frame.setVisible(true);
             } else {
                 System.out.println("No Selection ");
             }
@@ -220,12 +210,6 @@ public class GameCreator extends JPanel implements ActionListener {
         gameCellInfo.setAlphabets(alphabetsChar);
         //gameCellInfo.setImage(image);
         gameCellInfo.setLevelNumber(level);
-        if (level == 1) {
-            gameCellInfo.setLocked(false);
-        } else {
-            gameCellInfo.setLocked(true);
-        }
-        gameCellInfo.setSolved(false);
     }
 
     private static void loadCell(int level) {

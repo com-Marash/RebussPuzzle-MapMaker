@@ -10,7 +10,6 @@ import java.io.Serializable;
 public class GameCell_info implements Serializable {
 
     private String solution = "";
-    private boolean isLocked, isSolved;
     private char[] alphabets = {};
     private int levelNumber;
     private byte[] image;
@@ -37,22 +36,6 @@ public class GameCell_info implements Serializable {
     }
     public void setAlphabets(char[] alphabets) {
         this.alphabets = alphabets;
-    }
-
-    public boolean isSolved() {
-        return isSolved;
-    }
-
-    public void setSolved(boolean solved) {
-        isSolved = solved;
-    }
-
-    public boolean isLocked() {
-        return isLocked;
-    }
-
-    public void setLocked(boolean locked) {
-        isLocked = locked;
     }
 
     public String getSolution() {
